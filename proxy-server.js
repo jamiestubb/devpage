@@ -1,10 +1,14 @@
-// proxy-server.js
 import express from 'express';
 import bodyParser from 'body-parser';
 import fs from 'fs';
+import path from 'path';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 
 const app = express();
+const PORT = 3001;
+
+// Serve static files from the 'public' directory
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Middleware to parse URL-encoded bodies (for form submissions) and JSON
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -38,7 +42,7 @@ function getTargetUrl(req) {
 
 // Proxy middleware to forward requests based on the target determined
 app.use(
-  '/',
+  '/proxy', // Adjusted path to distinguish proxy requests
   createProxyMiddleware({
     changeOrigin: true,
     secure: false,
@@ -111,8 +115,7 @@ app.post('*', (req, res) => {
   }
 });
 
-// Start the HTTP server on a different port
-const PORT = 3001; // Change the port number here
+// Start the HTTP server
 app.listen(PORT, () => {
   console.log(`Proxy server running on http://localhost:${PORT}`);
 });
