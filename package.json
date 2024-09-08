@@ -1,1 +1,24 @@
-
+{
+  "name": "page",
+  "version": "1.0.0",
+  "description": "",
+  "main": "proxy-server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node proxy-server.js",
+    "dev": "nodemon proxy-server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "express": "^4.19.2",
+    "http-proxy-middleware": "^3.0.2",
+    "https": "^1.0.0",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  }
+}
